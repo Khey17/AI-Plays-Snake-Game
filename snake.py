@@ -42,7 +42,7 @@ class SnakeGame:
         self.snake = [self.head, Point(self.head.x-blockSize, self.head.y), Point(self.head.x-(2*blockSize), self.head.y)]
         
         self.score = 0
-        self.snake = None
+        # self.snake = None
         self.placeFood()
 
     def placeFood(self):
@@ -90,3 +90,53 @@ class SnakeGame:
         self.clock.tick(speed)
         # return game over and score
         return gameOver, self.score     
+
+    def isCollision(self):
+        # hits boundary
+        if self.head.x > self.w - blockSize or self.head.x < 0 or self.head.y > self.h - blockSize or self.head.y < 0:
+            return True
+        # hits itself
+        if self.head in self.snake[1:]:
+            return True
+
+        return False
+
+    def updateUI(self):
+        self.display.fill(BLACK)
+
+        for pt in self.snake:
+            pygame.draw.rect(self.display, BLUE1, pygame.Rect(pt.x, pt.y, blockSize, blockSize))
+            pygame.draw.rect(self.display, BLUE2, pygame.Rect(pt.x+4, pt.y+4, 12, 12))
+
+        pygame.draw.rect(self.display, RED, pygame.Rect(self.food.x, self.food.y, blockSize, blockSize))
+
+        text = font.render('Score: ' + str(self.score), True, WHITE)
+        self.display.blit(text, [0, 0])
+        pygame.display.flip()
+
+    def _move(self, direction):
+        x = self.head.x
+        y = self.head.y
+        if direction == Direction.RIGHT:
+            x += blockSize
+        elif direction == Direction.LEFT:
+            x -= blockSize
+        elif direction == Direction.DOWN:
+            y += blockSize
+        elif direction == Direction.UP:
+            y -= blockSize
+
+        self.head = Point(x, y)
+
+if __name__ == '__main__':
+    game = SnakeGame()
+
+    # Game loop
+    while True:
+        game_over, score = game.playStep()
+
+        if game_over == True:
+            break
+    print('Final Score', score)
+
+    pygame.quit()
